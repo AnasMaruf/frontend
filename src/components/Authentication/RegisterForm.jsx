@@ -22,7 +22,7 @@ function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(data);
+      const res = await register(data);
       navigate("/");
     } catch (error) {
       console.log(error.response.data);
