@@ -1,9 +1,39 @@
+import axios from "axios";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { register } from "../../api/AuthApi";
+import { useNavigate } from "react-router-dom";
 
 function RegisterForm() {
+  const initialState = {
+    username: "",
+    email: "",
+    password: "",
+    confPassword: "",
+  };
+  const [data, setData] = useState(initialState);
+  const { username, email, password, confPassword } = data;
+  const navigate = useNavigate();
+  const [msg, setMsg] = useState("");
+
+  function handleChange(e) {
+    setData({ ...data, [e.target.name]: e.target.value });
+  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await register(data);
+      navigate("/");
+    } catch (error) {
+      console.log(error.response.data);
+      // if (error.response) {
+      //   console.log(error.response.data);
+      // }
+    }
+  };
   return (
     <div className="w-full max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-20">
-      <form className="space-y-6" action="#">
+      <form className="space-y-6" onSubmit={handleSubmit}>
         <h5 className="text-xl font-medium text-gray-900 dark:text-white">
           Sign up to our platform
         </h5>
@@ -20,7 +50,8 @@ function RegisterForm() {
             id="username"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
             placeholder="username"
-            required
+            value={username}
+            onChange={handleChange}
           />
         </div>
         <div>
@@ -36,7 +67,8 @@ function RegisterForm() {
             id="email"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
             placeholder="name@company.com"
-            required
+            value={email}
+            onChange={handleChange}
           />
         </div>
         <div className="grid md:grid-cols-2 md:gap-6">
@@ -53,7 +85,8 @@ function RegisterForm() {
               id="password"
               placeholder="••••••••"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              required
+              value={password}
+              onChange={handleChange}
             />
           </div>
           <div className="relative z-0 w-full mb-5 group">
@@ -65,11 +98,12 @@ function RegisterForm() {
             </label>
             <input
               type="password"
-              name="confirmPassword"
-              id="confirmPassword"
+              name="confPassword"
+              id="confPassword"
               placeholder="••••••••"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-              required
+              value={confPassword}
+              onChange={handleChange}
             />
           </div>
         </div>
