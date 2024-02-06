@@ -13,8 +13,8 @@ function RegisterForm() {
   };
   const [data, setData] = useState(initialState);
   const { username, email, password, confPassword } = data;
-  const navigate = useNavigate();
   const [msg, setMsg] = useState("");
+  const navigate = useNavigate();
 
   function handleChange(e) {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -22,18 +22,19 @@ function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await register(data);
+      await register(data);
       navigate("/");
     } catch (error) {
-      console.log(error.response.data);
-      // if (error.response) {
-      //   console.log(error.response.data);
-      // }
+      if (error.response) {
+        setMsg(error.response.data.errors);
+      }
     }
   };
   return (
     <div className="w-full max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-20">
       <form className="space-y-6" onSubmit={handleSubmit}>
+        <p className="text-red-600">{msg}</p>
+
         <h5 className="text-xl font-medium text-gray-900 dark:text-white">
           Sign up to our platform
         </h5>
