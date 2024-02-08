@@ -10,6 +10,7 @@ function LoginForm() {
   };
   const [data, setData] = useState(initialState);
   const { email, password } = data;
+  const [msg, setMsg] = useState([]);
   const navigate = useNavigate();
 
   function handleChange(e) {
@@ -20,13 +21,28 @@ function LoginForm() {
     try {
       await login(data);
       navigate("/dashboard");
-    } catch (error) {}
+    } catch (error) {
+      console.log(error.response);
+      const errors = error.response.data.errors.split(".");
+      if (error.response) {
+        setMsg(errors);
+      }
+    }
   };
   return (
     <>
       <div className="bg-blue-600"></div>
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-20">
         <form className="space-y-6" onSubmit={handleSubmit}>
+          <ul>
+            {msg.map((message, index) => {
+              return (
+                <li key={index} className="text-red-600">
+                  - {message}
+                </li>
+              );
+            })}
+          </ul>
           <h5 className="text-xl font-medium text-gray-900 dark:text-white">
             Sign in to our platform
           </h5>
@@ -45,7 +61,6 @@ function LoginForm() {
               placeholder="name@company.com"
               value={email}
               onChange={handleChange}
-              required
             />
           </div>
           <div>
@@ -63,7 +78,6 @@ function LoginForm() {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
               value={password}
               onChange={handleChange}
-              required
             />
           </div>
           <button

@@ -13,7 +13,7 @@ function RegisterForm() {
   };
   const [data, setData] = useState(initialState);
   const { username, email, password, confPassword } = data;
-  const [msg, setMsg] = useState("");
+  const [msg, setMsg] = useState([]);
   const navigate = useNavigate();
 
   function handleChange(e) {
@@ -25,15 +25,25 @@ function RegisterForm() {
       await register(data);
       navigate("/");
     } catch (error) {
+      console.log(error.response);
+      const errors = error.response.data.errors.split(".");
       if (error.response) {
-        setMsg(error.response.data.errors);
+        setMsg(errors);
       }
     }
   };
   return (
     <div className="w-full max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-20">
       <form className="space-y-6" onSubmit={handleSubmit}>
-        <p className="text-red-600">{msg}</p>
+        <ul>
+          {msg.map((message, index) => {
+            return (
+              <li key={index} className="text-red-600">
+                - {message}
+              </li>
+            );
+          })}
+        </ul>
 
         <h5 className="text-xl font-medium text-gray-900 dark:text-white">
           Sign up to our platform

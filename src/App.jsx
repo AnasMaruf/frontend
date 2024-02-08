@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import LoginForm from "./components/Authentication/LoginForm";
 import RegisterForm from "./components/Authentication/RegisterForm";
+import Dashboard from "./components/Partial/dashboard";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );
