@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { login } from "../../api/AuthApi";
 import { useNavigate } from "react-router-dom";
+import Dashboard from "../Partial/dashboard";
 
 function LoginForm() {
   const initialState = {
@@ -19,7 +20,14 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(data);
+      const response = await login(data);
+      const token = response.data.token;
+      const config = {
+        headers: {
+          Authorization: `${token}`,
+        },
+      };
+      <Dashboard config={config} />;
       navigate("/dashboard");
     } catch (error) {
       console.log(error.response);
