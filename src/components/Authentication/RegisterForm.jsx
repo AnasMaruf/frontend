@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { register } from "../../api/AuthApi";
 import { useNavigate } from "react-router-dom";
+import AuthApi from "../../api/AuthApi";
 
 function RegisterForm() {
   const initialState = {
@@ -22,7 +21,7 @@ function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(data);
+      await AuthApi.register(data);
       navigate("/");
     } catch (error) {
       console.log(error.response);

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { login } from "../../api/AuthApi";
 import { useNavigate } from "react-router-dom";
-import Dashboard from "../Partial/dashboard";
+import AuthApi from "../../api/AuthApi";
 
 function LoginForm() {
   const initialState = {
@@ -20,17 +19,9 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(data);
-      const token = response.data.token;
-      const config = {
-        headers: {
-          Authorization: `${token}`,
-        },
-      };
-      <Dashboard config={config} />;
+      await AuthApi.login(data);
       navigate("/dashboard");
     } catch (error) {
-      console.log(error.response);
       const errors = error.response.data.errors.split(".");
       if (error.response) {
         setMsg(errors);

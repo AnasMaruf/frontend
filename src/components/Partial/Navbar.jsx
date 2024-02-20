@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
-import { logout } from "../../api/AuthApi";
 import { useNavigate } from "react-router-dom";
+import AuthApi from "../../api/AuthApi";
 
 function Navbar() {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      await logout();
+      // await axios.delete("http://localhost:3000/api/users/logout");
+      await AuthApi.logout();
       navigate("/");
     } catch (error) {
-      console.log(error.response.data.errors);
+      console.log(error.response);
     }
   };
   return (
