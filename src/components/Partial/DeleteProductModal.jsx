@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../../api/AuthApi";
 import { jwtDecode } from "jwt-decode";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function DeleteProductModal(props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +13,9 @@ function DeleteProductModal(props) {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState("");
   const [expire, setExpire] = useState("");
+  const [alert, setAlert] = useState(false);
+  const [msg, setMsg] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,8 +72,26 @@ function DeleteProductModal(props) {
     setIsOpen(!isOpen);
   };
 
+  const notify = () => {
+    if (msg.length === 0) {
+      toast.success("Product has been deleted", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+    setAlert(true);
+    props.fetch();
+  };
+
   const handleDelete = async (e) => {
     e.preventDefault();
+
     try {
       await axios.delete(
         `http://localhost:3000/api/products/${props.productId}`,
@@ -78,8 +101,9 @@ function DeleteProductModal(props) {
           },
         }
       );
-      props.fetch();
       toggleModal();
+      props.fetch();
+      notify();
     } catch (error) {
       console.log(error.response);
     }

@@ -8,18 +8,32 @@ import { useNavigate } from "react-router-dom";
 import AddProductModal from "./AddProductModal";
 import EditProductModal from "./EditProductModal";
 import DeleteProductModal from "./DeleteProductModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ReactPaginate from "react-paginate";
 
 function Dashboard() {
   const [name, setName] = useState("");
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState("");
   const [expire, setExpire] = useState("");
+  const [alert, setAlert] = useState(false);
   const navigate = useNavigate();
+
+  //PAGINATE
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [pages, setPages] = useState(0);
+  const [rows, setRows] = useState(0);
+  const [keyword, setKeyword] = useState("");
+  const [query, setQuery] = useState("");
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     refreshToken();
     fetchData();
-  }, []);
+  }, [page, keyword]);
 
   const refreshToken = async () => {
     try {
@@ -58,12 +72,18 @@ function Dashboard() {
 
   const fetchData = async () => {
     // const response = await ProductsApi.fetch(token);
-    const response = await axiosJWT.get("http://localhost:3000/api/products", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setProducts(response.data.data);
+    const response = await axiosJWT.get(
+      `http://localhost:3000/api/products?search_query=${keyword}&page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    setProducts(response.data.result);
+    setPage(response.data.page);
+    setPages(response.data.totalPage);
+    setRows(response.data.totalRows);
   };
 
   const handleUpdate = async (id, data) => {
@@ -75,14 +95,53 @@ function Dashboard() {
     setProducts(updatedProduct);
   };
 
+  const changePage = ({ selected }) => {
+    setPage(selected);
+    if (selected === 9) {
+      setMsg(
+        "Jika tidak menemukan data yang anda cari, silahkan cari data dengan kata kunci spesifik"
+      );
+    } else {
+      setMsg("");
+    }
+  };
+
+  const searchData = (e) => {
+    e.preventDefault();
+    setPage(0);
+    setKeyword(query);
+  };
+
   return (
     <>
       <Navbar />
       <div className="mx-14 mt-4">
         <div className="relative overflow-x-auto mt-8">
           <h1>Hello, ${name}</h1>
-          <AddProductModal fetch={fetchData} />
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+
+          <AddProductModal
+            fetch={fetchData}
+            onProductAdded={() => setAlert(true)}
+          />
+          <form action="" onSubmit={searchData}>
+            <div className="field has-addons">
+              <div className="control is-expanded">
+                <input
+                  type="text"
+                  className="input"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Find something here..."
+                />
+              </div>
+              <div className="control">
+                <button type="submit" className="button is-info">
+                  Search
+                </button>
+              </div>
+            </div>
+          </form>
+          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-5">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" className="px-6 py-3">
@@ -131,8 +190,46 @@ function Dashboard() {
               })}
             </tbody>
           </table>
+          <p>
+            Total Rows: {rows} Page: {rows ? page + 1 : 0} of {pages}
+          </p>
+          <p className="has-text-centered has-text-danger">{msg}</p>
         </div>
       </div>
+      <nav
+        className="pagination is-centered"
+        key={rows}
+        role="navigation"
+        aria-label="pagination"
+      >
+        <ReactPaginate
+          previousLabel={"< prev"}
+          nextLabel={"Next >"}
+          pageCount={Math.min(10, pages)}
+          onPageChange={changePage}
+          containerClassName={"pagination-list"}
+          pageLinkClassName={"pagination-link"}
+          previousLinkClassName={"pagination-previous"}
+          nextLinkClassName={"pagination-next"}
+          activeLinkClassName={"pagination-link is-current"}
+          disabledLinkClassName={"pagination-link is-disabled"}
+        />
+      </nav>
+      {!alert && (
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition:Bounce
+        />
+      )}
     </>
   );
 }

@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../../api/AuthApi";
 import { jwtDecode } from "jwt-decode";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AddProductModal(props) {
   const initialState = {
@@ -13,6 +15,7 @@ function AddProductModal(props) {
   const [data, setData] = useState(initialState);
   const { name, price, description } = data;
   const [msg, setMsg] = useState([]);
+  const [alert, setAlert] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -22,8 +25,8 @@ function AddProductModal(props) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    refreshToken();
     fetchData();
+    refreshToken();
   }, []);
 
   const refreshToken = async () => {
@@ -79,21 +82,35 @@ function AddProductModal(props) {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
+  const notify = () => {
+    if (msg.length === 0) {
+      toast.success("Product has been created", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+    setAlert(true);
+    props.fetch();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosJWT.post(
-        "http://localhost:3000/api/products",
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response);
+      await axiosJWT.post("http://localhost:3000/api/products", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       toggleModal();
       props.fetch();
+      notify();
+      setData(initialState);
       navigate("/dashboard");
     } catch (e) {
       const errors = e.response.data.errors.split(".");
@@ -239,6 +256,21 @@ function AddProductModal(props) {
           </div>
         </div>
       </div>
+      {/* {!alert && (
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition:Bounce
+        />
+      )} */}
     </>
   );
 }

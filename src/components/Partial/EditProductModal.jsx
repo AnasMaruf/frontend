@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../../api/AuthApi";
 import { jwtDecode } from "jwt-decode";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function EditProductModal(props) {
   const dataProduct = props.product;
@@ -20,6 +22,7 @@ function EditProductModal(props) {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState("");
   const [expire, setExpire] = useState("");
+  const [alert, setAlert] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,6 +83,23 @@ function EditProductModal(props) {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
+  const notify = () => {
+    if (msg.length === 0) {
+      toast.success("Product has been updated", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+    setAlert(true);
+    props.fetch();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -94,6 +114,8 @@ function EditProductModal(props) {
       );
       toggleModal();
       props.fetch();
+      notify();
+      setData(initialState);
       navigate("/dashboard");
     } catch (e) {
       console.log(e.response);
